@@ -1,0 +1,21 @@
+[package]
+name = "pacman-kata"
+version = "0.1.0"
+authors = ["William Woodhead <william.woodhead@lux01.co.uk>"]
+description = """
+An implementation of the Pacman kata in Rust.
+"""
+keywords = ["pacman", "kata"]
+license = "MIT"
+
+[[test]]
+name = "cucumber"
+harness = false
+path = "src/test/rust/main.rs"
+
+[lib]
+name = "pacman"
+path = "src/main/rust/lib.rs"
+
+[dev-dependencies]
+cucumber_rust = "0.3"

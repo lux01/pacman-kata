@@ -32,3 +32,4 @@ src/main/go/src/pacman/game/coverage.out
 pacman-game.log
 .m2
 
+Cargo.lock
