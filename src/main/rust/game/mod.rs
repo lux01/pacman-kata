@@ -9,10 +9,25 @@ pub use self::stats::Stats;
 
 use std::str::FromStr;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Game {
     pub stats: Stats,
-    pub field: Board,
+    pub board: Board,
+}
+
+impl Game {
+    pub fn refresh_from_state(&self, s: &str) -> Result<Game, ParseError> {
+        let end_of_stats_line = s.find('\n').ok_or(ParseError::CannotFindEndOfStatsLine)?;
+        let (stats, board) = s.split_at(end_of_stats_line);
+
+        let new_stats = self.stats.refresh_from_state(stats)?;
+        let new_board = self.board.refresh_from_state(&board[1..])?;
+
+        Ok(Game {
+            stats: new_stats,
+            board: new_board,
+        })
+    }
 }
 
 impl FromStr for Game {
@@ -24,7 +39,7 @@ impl FromStr for Game {
 
         Ok(Game {
             stats: stats.parse()?,
-            field: board[1..].parse()?,
+            board: board[1..].parse()?,
         })
     }
 }

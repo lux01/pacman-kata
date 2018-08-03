@@ -10,7 +10,7 @@ pub struct Position {
     pub y: usize,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Board {
     pub rows: usize,
     pub cols: usize,
@@ -23,6 +23,10 @@ pub struct Board {
 }
 
 impl Board {
+    pub fn refresh_from_state(&self, s: &str) -> Result<Board, ParseError> {
+        s.parse()
+    }
+
     pub fn is_pacman_at(&self, pos: &Position) -> bool {
         self.pacman
             .as_ref()
