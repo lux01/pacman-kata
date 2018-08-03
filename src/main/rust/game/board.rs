@@ -1,9 +1,7 @@
-use super::super::tokens::Token;
+use super::super::tokens::{self, Token};
 use super::ParseError;
 
 use std::cmp::max;
-use std::collections::HashMap;
-use std::rc::Rc;
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Clone, Copy)]
@@ -16,24 +14,38 @@ pub struct Position {
 pub struct Board {
     pub rows: usize,
     pub cols: usize,
-    tokens: HashMap<Position, Vec<Rc<Token>>>,
-    pacman_posn: Option<Position>,
-    pacman_token: Option<Rc<Token>>,
-    ghost_posns: Vec<Position>,
-    ghost_tokens: Vec<Rc<Token>>,
+    pacman: Option<(Position, tokens::Pacman)>,
+    ghosts: Vec<(Position, tokens::Ghost)>,
+    pills: Vec<(Position, tokens::Pill)>,
 }
 
 impl Board {
     pub fn is_pacman_at(&self, pos: &Position) -> bool {
-        self.pacman_posn.map(|p| p == *pos).unwrap_or(false)
+        if let Some((ref position, ref _pacman)) = self.pacman {
+            position == pos
+        } else {
+            false
+        }
     }
 
     pub fn is_ghost_at(&self, pos: &Position) -> bool {
-        self.ghost_posns.contains(pos)
+        self.ghosts.iter()
+            .filter(|&(p, _)| p == pos)
+            .count() > 0
     }
 
-    pub fn pacman_token(&self) -> Option<Rc<Token>> {
-        self.pacman_token.clone()
+    pub fn pacman(&self) -> Option<&tokens::Pacman> {
+        match self.pacman {
+            Some((_position, ref pacman)) => Some(pacman),
+            None => None,
+        }
+    }
+
+    pub fn get_pill_at(&self, pos: &Position) -> Option<&tokens::Pill> {
+        self.pills.iter()
+            .filter(|&(pill_pos, _)| pill_pos == pos)
+            .map(|(_, pill)| pill)
+            .next()
     }
 }
 
@@ -48,11 +60,9 @@ impl FromStr for Board {
         let mut board = Board {
             rows: 0,
             cols: 0,
-            tokens: HashMap::new(),
-            pacman_posn: None,
-            pacman_token: None,
-            ghost_posns: vec![],
-            ghost_tokens: vec![],
+            pacman: None,
+            ghosts: vec![],
+            pills: vec![],
         };
 
         for token_char in s.chars() {
@@ -63,26 +73,12 @@ impl FromStr for Board {
                 continue;
             }
 
-            match Token::from_char(token_char) {
-                Some(token) => {
-                    match token.as_ref() {
-                        Token::PacmanToken(_) => {
-                            board.pacman_posn = Some(Position { x, y });
-                            board.pacman_token = Some(token.clone());
-                        }
-                        Token::GhostToken(_) => {
-                            board.ghost_posns.push(Position { x, y });
-                            board.ghost_tokens.push(token.clone());
-                        }
-                    }
-
-                    board
-                        .tokens
-                        .entry(Position { x, y })
-                        .or_insert(vec![])
-                        .push(token);
+            if let Some(token) = Token::from_char(token_char) {
+                match token {
+                    Token::PacmanToken(pacman) => board.pacman = Some((Position {x, y}, pacman)),
+                    Token::GhostToken(ghost) => board.ghosts.push((Position { x, y }, ghost)),
+                    Token::PillToken(pill) => board.pills.push((Position { x, y }, pill)),
                 }
-                None => {}
             }
 
             x += 1;

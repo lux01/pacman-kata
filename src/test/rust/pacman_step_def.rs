@@ -1,5 +1,5 @@
 use pacman::game::Position;
-use pacman::tokens::{self, Token};
+use pacman::tokens;
 use pacman::Game;
 use pacman::ParseError;
 
@@ -69,28 +69,37 @@ steps! {
     (tokens::Orientation)
     |world, expected_orientation, _step| {
         use_world_field!(world, game, {
-            if let Some(token) = game.field.pacman_token().clone() {
-                match *token {
-                    Token::PacmanToken(ref pacman) => assert_eq!(expected_orientation, pacman.orientation),
-                    _ => panic!("Pacman token was not actually a pacman!"),
-                }
-            } else {
-                panic!("Pacman not found")
-            }
+            let orientation = game.field.pacman()
+                .map(|pacman| pacman.orientation)
+                .expect("Pacman not found");
+
+            assert_eq!(expected_orientation, orientation);
         });
     };
 
     then "pacman should be dead" |world, _step| {
         use_world_field!(world, game, {
-            match game.field.pacman_token().unwrap().as_ref() {
-                Token::PacmanToken(pacman) => assert!(!pacman.alive),
-                _ => panic!("Pacman token was not actually Pacman"),
-            }
+            let is_pacman_alive = game.field.pacman()
+                .map(|pacman| pacman.alive)
+                .expect("Pacman not found");
+
+            assert!(!is_pacman_alive);
         });
     };
 
     then regex r"ghost should be at (\d+) , (\d+)", (usize, usize)
     |world, expected_x, expected_y, _step| {
         use_world_field!(world, game, assert!(game.field.is_ghost_at(&Position { x: expected_x, y: expected_y })))
+    };
+
+    then regex r"there should be a (\d+) point pill at (\d+) , (\d+)", (u64, usize, usize)
+    |world, expected_score_value, expected_x, expected_y, _step| {
+        use_world_field!(world, game, {
+            assert_eq!(expected_score_value,
+                game.field.get_pill_at(&Position { x: expected_x, y: expected_y })
+                    .expect("Pill not found at location")
+                    .score_value
+            );
+        })
     };
 }
