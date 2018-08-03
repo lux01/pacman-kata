@@ -18,4 +18,4 @@ name = "pacman"
 path = "src/main/rust/lib.rs"
 
 [dev-dependencies]
-cucumber_rust = { path = "../cucumber-rust", default-features = false }
+cucumber_rust = { git = "https://github.com/bbqsrc/cucumber-rust.git", branch = "develop", default-features = false }

@@ -17,11 +17,21 @@ pub struct Board {
     pub rows: usize,
     pub cols: usize,
     tokens: HashMap<Position, Vec<Rc<Token>>>,
-    pub pacman_posn: Option<Position>,
+    pacman_posn: Option<Position>,
     pacman_token: Option<Rc<Token>>,
+    ghost_posns: Vec<Position>,
+    ghost_tokens: Vec<Rc<Token>>,
 }
 
 impl Board {
+    pub fn is_pacman_at(&self, pos: &Position) -> bool {
+        self.pacman_posn.map(|p| p == *pos).unwrap_or(false)
+    }
+
+    pub fn is_ghost_at(&self, pos: &Position) -> bool {
+        self.ghost_posns.contains(pos)
+    }
+
     pub fn pacman_token(&self) -> Option<Rc<Token>> {
         self.pacman_token.clone()
     }
@@ -41,6 +51,8 @@ impl FromStr for Board {
             tokens: HashMap::new(),
             pacman_posn: None,
             pacman_token: None,
+            ghost_posns: vec![],
+            ghost_tokens: vec![],
         };
 
         for token_char in s.chars() {
@@ -57,6 +69,10 @@ impl FromStr for Board {
                         Token::PacmanToken(_) => {
                             board.pacman_posn = Some(Position { x, y });
                             board.pacman_token = Some(token.clone());
+                        }
+                        Token::GhostToken(_) => {
+                            board.ghost_posns.push(Position { x, y });
+                            board.ghost_tokens.push(token.clone());
                         }
                     }
 
