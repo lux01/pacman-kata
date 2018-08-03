@@ -17,21 +17,21 @@ pub struct Board {
     pacman: Option<(Position, tokens::Pacman)>,
     ghosts: Vec<(Position, tokens::Ghost)>,
     pills: Vec<(Position, tokens::Pill)>,
+    walls: Vec<(Position, tokens::Wall)>,
+    force_field: Option<(Position, tokens::ForceField)>,
+    gate: Option<(Position, tokens::Gate)>,
 }
 
 impl Board {
     pub fn is_pacman_at(&self, pos: &Position) -> bool {
-        if let Some((ref position, ref _pacman)) = self.pacman {
-            position == pos
-        } else {
-            false
-        }
+        self.pacman
+            .as_ref()
+            .map(|(ref pacman_pos, _)| pacman_pos == pos)
+            .unwrap_or(false)
     }
 
     pub fn is_ghost_at(&self, pos: &Position) -> bool {
-        self.ghosts.iter()
-            .filter(|&(p, _)| p == pos)
-            .count() > 0
+        self.ghosts.iter().filter(|&(p, _)| p == pos).count() > 0
     }
 
     pub fn pacman(&self) -> Option<&tokens::Pacman> {
@@ -42,10 +42,31 @@ impl Board {
     }
 
     pub fn get_pill_at(&self, pos: &Position) -> Option<&tokens::Pill> {
-        self.pills.iter()
+        self.pills
+            .iter()
             .filter(|&(pill_pos, _)| pill_pos == pos)
             .map(|(_, pill)| pill)
             .next()
+    }
+
+    pub fn is_wall_at(&self, pos: &Position) -> bool {
+        self.walls
+            .iter()
+            .filter(|&(p, _)| p == pos)
+            .next()
+            .is_some()
+    }
+
+    pub fn is_gate_at(&self, pos: &Position) -> bool {
+        self.gate
+            .map(|(gate_pos, _)| gate_pos == *pos)
+            .unwrap_or(false)
+    }
+
+    pub fn is_force_field_at(&self, pos: &Position) -> bool {
+        self.force_field
+            .map(|(force_field_pos, _)| force_field_pos == *pos)
+            .unwrap_or(false)
     }
 }
 
@@ -63,6 +84,9 @@ impl FromStr for Board {
             pacman: None,
             ghosts: vec![],
             pills: vec![],
+            walls: vec![],
+            force_field: None,
+            gate: None,
         };
 
         for token_char in s.chars() {
@@ -74,10 +98,16 @@ impl FromStr for Board {
             }
 
             if let Some(token) = Token::from_char(token_char) {
+                let posn = Position { x, y };
                 match token {
-                    Token::PacmanToken(pacman) => board.pacman = Some((Position {x, y}, pacman)),
-                    Token::GhostToken(ghost) => board.ghosts.push((Position { x, y }, ghost)),
-                    Token::PillToken(pill) => board.pills.push((Position { x, y }, pill)),
+                    Token::PacmanToken(pacman) => board.pacman = Some((posn, pacman)),
+                    Token::GhostToken(ghost) => board.ghosts.push((posn, ghost)),
+                    Token::PillToken(pill) => board.pills.push((posn, pill)),
+                    Token::WallToken(wall) => board.walls.push((posn, wall)),
+                    Token::ForceFieldToken(force_field) => {
+                        board.force_field = Some((posn, force_field))
+                    }
+                    Token::GateToken(gate) => board.gate = Some((posn, gate)),
                 }
             }
 

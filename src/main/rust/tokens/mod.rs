@@ -1,37 +1,22 @@
+mod ghost;
+mod misc;
 mod pacman;
+mod pill;
+mod wall;
+
+pub use self::ghost::*;
+pub use self::misc::*;
 pub use self::pacman::*;
-
-#[derive(Debug, Clone, Copy)]
-pub struct Ghost;
-
-impl Ghost {
-    pub fn try_parse(c: char) -> Option<Ghost> {
-        match c {
-            'M' => Some(Ghost),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct Pill {
-    pub score_value: u64,
-}
-
-impl Pill {
-    pub fn try_parse(c: char) -> Option<Pill> {
-        match c {
-            '.' => Some(Pill { score_value: 10 }),
-            'o' => Some(Pill { score_value: 50 }),
-            _ => None,
-        }
-    }
-}
+pub use self::pill::*;
+pub use self::wall::*;
 
 pub enum Token {
     PacmanToken(Pacman),
     GhostToken(Ghost),
     PillToken(Pill),
+    WallToken(Wall),
+    ForceFieldToken(ForceField),
+    GateToken(Gate),
 }
 
 impl Token {
@@ -42,6 +27,12 @@ impl Token {
             Some(Token::GhostToken(ghost))
         } else if let Some(pill) = Pill::try_parse(c) {
             Some(Token::PillToken(pill))
+        } else if let Some(wall) = Wall::try_parse(c) {
+            Some(Token::WallToken(wall))
+        } else if let Some(force_field) = ForceField::try_parse(c) {
+            Some(Token::ForceFieldToken(force_field))
+        } else if let Some(gate) = Gate::try_parse(c) {
+            Some(Token::GateToken(gate))
         } else {
             None
         }

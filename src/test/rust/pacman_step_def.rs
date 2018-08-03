@@ -10,7 +10,10 @@ pub struct PacmanWorld {
 
 impl Default for PacmanWorld {
     fn default() -> Self {
-        PacmanWorld { state: String::new(), game: Err(ParseError::NotParsed) }
+        PacmanWorld {
+            state: String::new(),
+            game: Err(ParseError::NotParsed),
+        }
     }
 }
 
@@ -95,11 +98,31 @@ steps! {
     then regex r"there should be a (\d+) point pill at (\d+) , (\d+)", (u64, usize, usize)
     |world, expected_score_value, expected_x, expected_y, _step| {
         use_world_field!(world, game, {
-            assert_eq!(expected_score_value,
-                game.field.get_pill_at(&Position { x: expected_x, y: expected_y })
-                    .expect("Pill not found at location")
-                    .score_value
-            );
+            let pill = game.field.get_pill_at(&Position { x: expected_x, y: expected_y })
+                .expect("Pill not found at location");
+
+            assert_eq!(expected_score_value, pill.score_value);
         })
+    };
+
+    then regex r"there should be a wall at (\d+) , (\d+)", (usize, usize)
+    |world, expected_x, expected_y, _score| {
+        use_world_field!(world, game, {
+            assert!(game.field.is_wall_at(&Position { x: expected_x, y: expected_y }), "Wall not found");
+        });
+    };
+
+    then regex r"there should be a gate at (\d+) , (\d+)", (usize, usize)
+    |world, expected_x, expected_y, _score| {
+        use_world_field!(world, game, {
+            assert!(game.field.is_gate_at(&Position { x: expected_x, y: expected_y }), "Gate not found");
+        });
+    };
+
+    then regex r"there should be a force field at (\d+) , (\d+)", (usize, usize)
+    |world, expected_x, expected_y, _score| {
+        use_world_field!(world, game, {
+            assert!(game.field.is_force_field_at(&Position { x: expected_x, y: expected_y }), "Force field not found");
+        });
     };
 }
