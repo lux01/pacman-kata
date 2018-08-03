@@ -2,7 +2,7 @@ use super::ParseError;
 
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Stats {
     pub lives: u64,
     pub score: u64,

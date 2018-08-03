@@ -1,14 +1,15 @@
-mod board;
+pub mod board;
 mod stats;
 
 pub use super::ParseError;
 
 pub use self::board::Board;
+pub use self::board::Position;
 pub use self::stats::Stats;
 
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct Game {
     pub stats: Stats,
     pub field: Board,
@@ -23,7 +24,7 @@ impl FromStr for Game {
 
         Ok(Game {
             stats: stats.parse()?,
-            field: board.parse()?,
+            field: board[1..].parse()?,
         })
     }
 }

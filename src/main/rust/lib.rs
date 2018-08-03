@@ -1,5 +1,8 @@
-mod game;
-mod parse_error;
+pub mod game;
+pub mod parse_error;
+
+pub mod tokens;
+
 
 pub use self::game::Board;
 pub use self::game::Game;

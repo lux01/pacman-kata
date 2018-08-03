@@ -1,12 +1,30 @@
+use super::super::tokens::Token;
 use super::ParseError;
 
 use std::cmp::max;
+use std::collections::HashMap;
+use std::rc::Rc;
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Clone, Copy)]
+pub struct Position {
+    pub x: usize,
+    pub y: usize,
+}
+
+#[derive(Clone)]
 pub struct Board {
     pub rows: usize,
     pub cols: usize,
+    tokens: HashMap<Position, Vec<Rc<Token>>>,
+    pub pacman_posn: Option<Position>,
+    pacman_token: Option<Rc<Token>>,
+}
+
+impl Board {
+    pub fn pacman_token(&self) -> Option<Rc<Token>> {
+        self.pacman_token.clone()
+    }
 }
 
 impl FromStr for Board {
@@ -17,6 +35,14 @@ impl FromStr for Board {
         let mut x = 0;
         let mut y = 0;
 
+        let mut board = Board {
+            rows: 0,
+            cols: 0,
+            tokens: HashMap::new(),
+            pacman_posn: None,
+            pacman_token: None,
+        };
+
         for token_char in s.chars() {
             if token_char == '\n' {
                 cols = max(cols, x);
@@ -24,9 +50,30 @@ impl FromStr for Board {
                 y += 1;
                 continue;
             }
+
+            match Token::from_char(token_char) {
+                Some(token) => {
+                    match token.as_ref() {
+                        Token::PacmanToken(_) => {
+                            board.pacman_posn = Some(Position { x, y });
+                            board.pacman_token = Some(token.clone());
+                        }
+                    }
+
+                    board
+                        .tokens
+                        .entry(Position { x, y })
+                        .or_insert(vec![])
+                        .push(token);
+                }
+                None => {}
+            }
+
             x += 1;
         }
 
-        Ok(Board { rows: y, cols })
+        board.rows = y + 1;
+        board.cols = cols;
+        Ok(board)
     }
 }
