@@ -40,6 +40,12 @@ impl Stats {
 
         Ok(new_stats)
     }
+
+    pub fn render(&self, width: usize) -> String {
+        let len_lives = (self.lives as f64).log10().ceil() as usize;
+        let padding_width = width - len_lives;
+        format!("{}{:width$}", self.lives, self.score, width = padding_width)
+    }
 }
 
 impl FromStr for Stats {

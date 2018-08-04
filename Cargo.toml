@@ -19,3 +19,6 @@ path = "src/main/rust/lib.rs"
 
 [dev-dependencies]
 cucumber_rust = { git = "https://github.com/bbqsrc/cucumber-rust.git", branch = "develop", default-features = false }
+
+[patch.crates-io]
+gherkin_rust = { git = "https://github.com/bbqsrc/gherkin-rust.git", branch = "master" }

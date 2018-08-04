@@ -1,17 +1,8 @@
 use pacman::game::Position;
 use pacman::tokens;
-use pacman::Game;
-
-#[derive(Default)]
-pub struct PacmanWorld {
-    state: String,
-    game: Game,
-}
-
-impl ::cucumber_rust::World for PacmanWorld {}
 
 steps! {
-    world: PacmanWorld;
+    world: super::PacmanWorld;
 
     given "the game state is" |world, step| {
         world.state = step.docstring().unwrap().clone();
