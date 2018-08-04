@@ -1,3 +1,5 @@
+use super::{RenderOptions, Renderable};
+
 #[derive(Debug, Clone, Copy)]
 pub struct Gate;
 
@@ -11,6 +13,12 @@ impl Gate {
     }
 }
 
+impl Renderable for Gate {
+    fn render(&self, _opts: &RenderOptions) -> String {
+        "=".to_owned()
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct ForceField;
 
@@ -21,5 +29,11 @@ impl ForceField {
         } else {
             None
         }
+    }
+}
+
+impl Renderable for ForceField {
+    fn render(&self, _opts: &RenderOptions) -> String {
+        "#".to_owned()
     }
 }

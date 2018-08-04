@@ -10,31 +10,47 @@ pub use self::pacman::*;
 pub use self::pill::*;
 pub use self::wall::*;
 
-pub enum Token {
+pub use super::{RenderOptions, Renderable};
+
+macro_rules! token {
+    ($($name:ident($inner:tt),)*) => {
+        pub enum Token {
+            $($name($inner),)*
+        }
+
+        impl Token {
+            pub fn from_char(c: char) -> Option<Token> {
+                let mut result = None;
+
+                $(result = result.or_else(|| $inner::try_parse(c).map(|v| Token::$name(v)));)*
+
+                return result;
+            }
+        }
+
+        impl Renderable for Token {
+            fn render(&self, opts: &RenderOptions) -> String {
+                match self {
+                    $(Token::$name(v) => v.render(opts),)*
+                }
+            }
+        }
+
+        $(
+            impl From<$inner> for Token {
+                fn from(v: $inner) -> Token {
+                    Token::$name(v)
+                }
+            }
+        )*
+    }
+}
+
+token! {
     PacmanToken(Pacman),
     GhostToken(Ghost),
     PillToken(Pill),
     WallToken(Wall),
     ForceFieldToken(ForceField),
     GateToken(Gate),
-}
-
-impl Token {
-    pub fn from_char(c: char) -> Option<Token> {
-        if let Some(pacman) = Pacman::try_parse(c) {
-            Some(Token::PacmanToken(pacman))
-        } else if let Some(ghost) = Ghost::try_parse(c) {
-            Some(Token::GhostToken(ghost))
-        } else if let Some(pill) = Pill::try_parse(c) {
-            Some(Token::PillToken(pill))
-        } else if let Some(wall) = Wall::try_parse(c) {
-            Some(Token::WallToken(wall))
-        } else if let Some(force_field) = ForceField::try_parse(c) {
-            Some(Token::ForceFieldToken(force_field))
-        } else if let Some(gate) = Gate::try_parse(c) {
-            Some(Token::GateToken(gate))
-        } else {
-            None
-        }
-    }
 }

@@ -1,3 +1,5 @@
+use super::{RenderOptions, Renderable};
+
 #[derive(Debug, Clone, Copy)]
 pub struct Ghost;
 
@@ -7,5 +9,11 @@ impl Ghost {
             'M' => Some(Ghost),
             _ => None,
         }
+    }
+}
+
+impl Renderable for Ghost {
+    fn render(&self, _opts: &RenderOptions) -> String {
+        "M".to_owned()
     }
 }

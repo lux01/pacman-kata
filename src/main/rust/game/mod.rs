@@ -1,13 +1,11 @@
 pub mod board;
 mod stats;
 
-pub use super::ParseError;
-
 pub use self::board::Board;
 pub use self::board::Position;
 pub use self::stats::Stats;
 
-use std::str::FromStr;
+pub use super::{ParseError, Refreshable, RenderOptions, Renderable};
 
 #[derive(Clone, Default)]
 pub struct Game {
@@ -16,30 +14,32 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn refresh_from_state(&self, s: &str) -> Result<Game, ParseError> {
+    pub fn render_game(&self) -> String {
+        let opts = RenderOptions {
+            screen_width: self.board.cols,
+        };
+
+        self.render(&opts)
+    }
+}
+
+impl Renderable for Game {
+    fn render(&self, opts: &RenderOptions) -> String {
+        format!("{}\n{}", self.stats.render(opts), self.board.render(opts))
+    }
+}
+
+impl Refreshable for Game {
+    fn refresh_from_str(&self, s: &str) -> Result<Self, ParseError> {
         let end_of_stats_line = s.find('\n').ok_or(ParseError::CannotFindEndOfStatsLine)?;
         let (stats, board) = s.split_at(end_of_stats_line);
 
-        let new_stats = self.stats.refresh_from_state(stats)?;
-        let new_board = self.board.refresh_from_state(&board[1..])?;
+        let new_stats = self.stats.refresh_from_str(stats)?;
+        let new_board = self.board.refresh_from_str(&board[1..])?;
 
         Ok(Game {
             stats: new_stats,
             board: new_board,
-        })
-    }
-}
-
-impl FromStr for Game {
-    type Err = ParseError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let end_of_stats_line = s.find('\n').ok_or(ParseError::CannotFindEndOfStatsLine)?;
-        let (stats, board) = s.split_at(end_of_stats_line);
-
-        Ok(Game {
-            stats: stats.parse()?,
-            board: board[1..].parse()?,
         })
     }
 }

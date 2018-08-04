@@ -1,3 +1,5 @@
+use pacman::{RenderOptions, Renderable};
+
 steps! {
     world: super::PacmanWorld;
 
@@ -18,7 +20,12 @@ steps! {
 
     when "we render the status line"
     |world, _step| {
-        world.render_result = world.game.stats.render(world.screen_width);
+        world.render_result = world.game.stats.render(&RenderOptions { screen_width: world.screen_width });
+    };
+
+    when "we render the game"
+    |world, _step| {
+        world.render_result = world.game.render_game();
     };
 
     then "I should get the following output:"
@@ -26,5 +33,12 @@ steps! {
         let expected_output = step.docstring().expect("No docstring set");
 
         assert_eq!(*expected_output, world.render_result);
+    };
+
+    then "the game screen should be"
+    |world, step| {
+        let expecetd_screen = step.docstring().expect("No docstring set");
+
+        assert_eq!(*expecetd_screen, world.render_result);
     };
 }

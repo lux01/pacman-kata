@@ -1,5 +1,6 @@
 use pacman::game::Position;
 use pacman::tokens;
+use pacman::Refreshable;
 
 steps! {
     world: super::PacmanWorld;
@@ -19,7 +20,7 @@ steps! {
     };
 
     when "we parse the state" |world, _| {
-        world.game = world.game.refresh_from_state(&world.state).expect("Failed to parse state");
+        world.game = world.game.refresh_from_str(&world.state).expect("Failed to parse state");
     };
 
     then regex r"the game field should be (\d+) x (\d+)", (usize, usize)

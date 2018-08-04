@@ -1,8 +1,8 @@
 use super::super::tokens::{self, Token};
-use super::ParseError;
+use super::{ParseError, Refreshable, RenderOptions, Renderable};
 
 use std::cmp::max;
-use std::str::FromStr;
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Clone, Copy)]
 pub struct Position {
@@ -18,15 +18,11 @@ pub struct Board {
     ghosts: Vec<(Position, tokens::Ghost)>,
     pills: Vec<(Position, tokens::Pill)>,
     walls: Vec<(Position, tokens::Wall)>,
-    force_field: Option<(Position, tokens::ForceField)>,
+    force_field: Vec<(Position, tokens::ForceField)>,
     gate: Option<(Position, tokens::Gate)>,
 }
 
 impl Board {
-    pub fn refresh_from_state(&self, s: &str) -> Result<Board, ParseError> {
-        s.parse()
-    }
-
     pub fn is_pacman_at(&self, pos: &Position) -> bool {
         self.pacman
             .as_ref()
@@ -68,16 +64,61 @@ impl Board {
     }
 
     pub fn is_force_field_at(&self, pos: &Position) -> bool {
-        self.force_field
-            .map(|(force_field_pos, _)| force_field_pos == *pos)
-            .unwrap_or(false)
+        self.force_field.iter().filter(|&(p, _)| p == pos).count() > 0
     }
 }
 
-impl FromStr for Board {
-    type Err = ParseError;
+impl Renderable for Board {
+    fn render(&self, opts: &RenderOptions) -> String {
+        // Build a chain of iterators that produce rendered tokens and positions
+        // in the priority order that they should be drawn
+        let pacman_iter = self.pacman
+            .iter()
+            .map(|(pos, pacman)| (pos, pacman.render(opts)));
+        let ghosts_iter = self.ghosts
+            .iter()
+            .map(|(pos, ghost)| (pos, ghost.render(opts)));
+        let pills_iter = self.pills
+            .iter()
+            .map(|(pos, pill)| (pos, pill.render(opts)));
+        let walls_iter = self.walls
+            .iter()
+            .map(|(pos, wall)| (pos, wall.render(opts)));
+        let force_field_iter = self.force_field
+            .iter()
+            .map(|(pos, ff)| (pos, ff.render(opts)));
+        let gate_iter = self.gate.iter().map(|(pos, gate)| (pos, gate.render(opts)));
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let tokens_map = pacman_iter
+            .chain(ghosts_iter)
+            .chain(pills_iter)
+            .chain(walls_iter)
+            .chain(force_field_iter)
+            .chain(gate_iter)
+            .fold(HashMap::new(), |mut map, (pos, token)| {
+                map.entry(pos).or_insert(token);
+                map
+            });
+
+        let mut output = String::with_capacity((self.cols + 1) * self.rows);
+        for y in 0..self.rows {
+            for x in 0..self.cols {
+                if let Some(token) = tokens_map.get(&Position { x, y }) {
+                    output.push_str(token);
+                } else {
+                    output.push_str(" ");
+                }
+            }
+            if y != self.rows - 1 {
+                output.push('\n');
+            }
+        }
+        output
+    }
+}
+
+impl Refreshable for Board {
+    fn refresh_from_str(&self, s: &str) -> Result<Self, ParseError> {
         let mut cols = 0;
         let mut x = 0;
         let mut y = 0;
@@ -89,7 +130,7 @@ impl FromStr for Board {
             ghosts: vec![],
             pills: vec![],
             walls: vec![],
-            force_field: None,
+            force_field: vec![],
             gate: None,
         };
 
@@ -109,7 +150,7 @@ impl FromStr for Board {
                     Token::PillToken(pill) => board.pills.push((posn, pill)),
                     Token::WallToken(wall) => board.walls.push((posn, wall)),
                     Token::ForceFieldToken(force_field) => {
-                        board.force_field = Some((posn, force_field))
+                        board.force_field.push((posn, force_field));
                     }
                     Token::GateToken(gate) => board.gate = Some((posn, gate)),
                 }
