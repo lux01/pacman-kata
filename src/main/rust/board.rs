@@ -136,8 +136,10 @@ impl Renderable for Board {
     fn render(&self, opts: &RenderOptions) -> String {
         let rendered_tokens = {
             let mut tokens = self.tokens.clone();
-            tokens.sort_by(|(_, token1), (_, token2)| token1.cmp(token2));
-            tokens.dedup_by(|(posn2, _), (posn1, _)| posn2 == posn1);
+            tokens.sort_by(|(posn1, token1), (posn2, token2)| {
+                posn1.cmp(posn2).then(token1.cmp(token2))
+            });
+            tokens.dedup_by(|t2, t1| t2.0 == t1.0);
 
             tokens
                 .into_iter()
