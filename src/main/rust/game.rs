@@ -1,11 +1,4 @@
-pub mod board;
-mod stats;
-
-pub use self::board::Board;
-pub use self::board::Position;
-pub use self::stats::Stats;
-
-pub use super::{ParseError, Refreshable, RenderOptions, Renderable};
+pub use super::*;
 
 #[derive(Clone, Default)]
 pub struct Game {
@@ -16,10 +9,14 @@ pub struct Game {
 impl Game {
     pub fn render_game(&self) -> String {
         let opts = RenderOptions {
-            screen_width: self.board.cols,
+            screen_width: self.board.bounds().max_x,
         };
 
         self.render(&opts)
+    }
+
+    pub fn tick(&mut self) {
+        self.board.tick();
     }
 }
 

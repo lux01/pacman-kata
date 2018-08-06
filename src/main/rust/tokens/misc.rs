@@ -1,6 +1,6 @@
-use super::{RenderOptions, Renderable};
+use super::*;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Gate;
 
 impl Gate {
@@ -11,6 +11,10 @@ impl Gate {
             None
         }
     }
+
+    pub fn next_pos(&mut self, _valid_neighbours: MoveOptions) -> Option<Position> {
+        None
+    }
 }
 
 impl Renderable for Gate {
@@ -19,7 +23,7 @@ impl Renderable for Gate {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ForceField;
 
 impl ForceField {
@@ -29,6 +33,10 @@ impl ForceField {
         } else {
             None
         }
+    }
+
+    pub fn next_pos(&mut self, _valid_neighbours: MoveOptions) -> Option<Position> {
+        None
     }
 }
 

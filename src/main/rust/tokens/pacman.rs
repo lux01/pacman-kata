@@ -1,8 +1,8 @@
-use super::super::ParseError;
-use super::{RenderOptions, Renderable};
+use super::super::*;
+
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, PartialOrd, Ord)]
 pub enum Orientation {
     Left,
     Right,
@@ -23,7 +23,7 @@ impl FromStr for Orientation {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, PartialOrd, Ord)]
 pub struct Pacman {
     pub orientation: Orientation,
     pub alive: bool,
@@ -53,6 +53,15 @@ impl Pacman {
                 alive: false,
             }),
             _ => None,
+        }
+    }
+
+    pub fn next_pos(&mut self, valid_neighbours: MoveOptions) -> Option<Position> {
+        match self.orientation {
+            Orientation::Left => valid_neighbours.left,
+            Orientation::Right => valid_neighbours.right,
+            Orientation::Up => valid_neighbours.up,
+            Orientation::Down => valid_neighbours.down,
         }
     }
 }

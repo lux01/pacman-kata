@@ -1,6 +1,4 @@
-use pacman::game::Position;
-use pacman::tokens;
-use pacman::Refreshable;
+use pacman::*;
 
 steps! {
     world: super::PacmanWorld;
@@ -25,8 +23,10 @@ steps! {
 
     then regex r"the game field should be (\d+) x (\d+)", (usize, usize)
     |world, expected_cols, expected_rows, _step| {
-        assert_eq!(expected_cols, world.game.board.cols);
-        assert_eq!(expected_rows, world.game.board.rows);
+        let bounds = world.game.board.bounds();
+
+        assert_eq!(expected_cols, bounds.cols());
+        assert_eq!(expected_rows, bounds.cols());
     };
 
     then regex r"the player should have (\d+) lives", (u64)
@@ -52,7 +52,7 @@ steps! {
     then regex r###"pacman should be facing "(LEFT|RIGHT|UP|DOWN)""###,
     (tokens::Orientation)
     |world, expected_orientation, _step| {
-        let orientation = world.game.board.pacman()
+        let orientation = world.game.board.get_pacman()
             .map(|pacman| pacman.orientation)
             .expect("Pacman not found");
 
@@ -61,7 +61,7 @@ steps! {
 
     then "pacman should be dead" |world, _step| {
 
-            let is_pacman_alive = world.game.board.pacman()
+            let is_pacman_alive = world.game.board.get_pacman()
                 .map(|pacman| pacman.alive)
                 .expect("Pacman not found");
 

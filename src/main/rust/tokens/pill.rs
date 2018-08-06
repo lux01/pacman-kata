@@ -1,6 +1,6 @@
-use super::{RenderOptions, Renderable};
+use super::*;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Pill {
     pub score_value: u64,
 }
@@ -12,6 +12,10 @@ impl Pill {
             'o' => Some(Pill { score_value: 50 }),
             _ => None,
         }
+    }
+
+    pub fn next_pos(&mut self, _valid_neighbours: MoveOptions) -> Option<Position> {
+        None
     }
 }
 

@@ -1,4 +1,4 @@
-use pacman::{RenderOptions, Renderable};
+use pacman::*;
 
 steps! {
     world: super::PacmanWorld;
@@ -28,6 +28,13 @@ steps! {
         world.render_result = world.game.render_game();
     };
 
+    when regex r"we play (\d+) turns?", (usize)
+    |world, turns, _step| {
+        for _ in 0..turns {
+            world.game.tick();
+        }
+    };
+
     then "I should get the following output:"
     |world, step| {
         let expected_output = step.docstring().expect("No docstring set");
@@ -39,6 +46,6 @@ steps! {
     |world, step| {
         let expecetd_screen = step.docstring().expect("No docstring set");
 
-        assert_eq!(*expecetd_screen, world.render_result);
+        assert_eq!(*expecetd_screen, world.render_result, "\nActual state:\n{}", world.render_result);
     };
 }

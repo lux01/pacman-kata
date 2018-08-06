@@ -1,6 +1,6 @@
-use super::{RenderOptions, Renderable};
+use super::*;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Wall {
     pub token: char,
 }
@@ -11,6 +11,10 @@ impl Wall {
             '-' | '+' | '|' => Some(Wall { token: c }),
             _ => None,
         }
+    }
+
+    pub fn next_pos(&mut self, _valid_neighbours: MoveOptions) -> Option<Position> {
+        None
     }
 }
 
