@@ -6,24 +6,33 @@ pub struct Game {
     pub board: Board,
 }
 
-impl Game {
-    pub fn render_game(&self) -> String {
-        let opts = RenderOptions {
-            screen_width: self.board.bounds().max_x,
-        };
-
-        self.render(&opts)
-    }
-
-    pub fn tick(&mut self) {
-        let score_change = self.board.tick();
-        self.stats.score += score_change;
-    }
+#[derive(Debug, Clone, Copy, Default)]
+pub struct TickResult {
+    pub score_increase: u64,
+    pub did_pacman_die: bool,
 }
 
-impl Renderable for Game {
-    fn render(&self, opts: &RenderOptions) -> String {
-        format!("{}\n{}", self.stats.render(opts), self.board.render(opts))
+impl Game {
+    pub fn tick(&mut self) {
+        let tick_result = self.board.tick();
+        self.stats.score += tick_result.score_increase;
+
+        if tick_result.did_pacman_die {
+            self.stats.lives -= 1;
+        }
+    }
+
+    pub fn render_game(&self) -> String {
+        let mut screen = RenderScreen::new(&self.board.bounds());
+        self.board.render(&mut screen);
+
+        if self.stats.lives == 0 {
+            let x_offset = if self.board.bounds().cols() > 6 { 2 } else { 1 };
+            screen.set_str(Position::new(x_offset, 1), "GAME");
+            screen.set_str(Position::new(x_offset, 2), "OVER");
+        }
+
+        format!("{}\n{}", self.stats, screen)
     }
 }
 

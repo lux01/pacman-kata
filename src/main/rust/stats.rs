@@ -1,14 +1,17 @@
-use super::{ParseError, Refreshable, RenderOptions, Renderable};
+use super::{ParseError, Refreshable};
+
+use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Stats {
     pub lives: u64,
     pub score: u64,
+    pub screen_width: usize,
 }
 
 impl Default for Stats {
     fn default() -> Stats {
-        Stats { lives: 3, score: 0 }
+        Stats { lives: 3, score: 0, screen_width: 0 }
     }
 }
 
@@ -30,6 +33,7 @@ impl Refreshable for Stats {
         let (_, score) = rest.split_at(start_of_score);
 
         let mut new_stats = self.clone();
+        new_stats.screen_width = s.len();
 
         if lives != "?" {
             new_stats.lives = lives.parse()?;
@@ -42,10 +46,14 @@ impl Refreshable for Stats {
     }
 }
 
-impl Renderable for Stats {
-    fn render(&self, opts: &RenderOptions) -> String {
-        let len_lives = (self.lives as f64).log10().ceil() as usize;
-        let padding_width = opts.screen_width - len_lives;
-        format!("{}{:width$}", self.lives, self.score, width = padding_width)
+impl fmt::Display for Stats {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let len_lives = if self.lives == 0 {
+            1
+        } else {
+            (self.lives as f64).log10().ceil() as usize
+        };
+        let padding_width = self.screen_width - len_lives;
+        write!(f, "{}{:width$}", self.lives, self.score, width = padding_width)
     }
 }

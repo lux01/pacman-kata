@@ -55,6 +55,10 @@ impl Pacman {
             _ => None,
         }
     }
+
+    pub fn die(&mut self) {
+        self.alive = false;
+    }
 }
 
 impl Mobile for Pacman {
@@ -68,17 +72,23 @@ impl Mobile for Pacman {
     }
 }
 
-impl Renderable for Pacman {
-    fn render(&self, _opts: &RenderOptions) -> String {
-        if self.alive {
-            match self.orientation {
-                Orientation::Left => ">",
-                Orientation::Right => "<",
-                Orientation::Up => "V",
-                Orientation::Down => "Λ",
+impl From<Pacman> for Cell {
+    fn from(pacman: Pacman) -> Cell {
+        From::from(&pacman)
+    }
+}
+
+impl<'a> From<&'a Pacman> for Cell {
+    fn from(pacman: &'a Pacman) -> Cell {
+        if pacman.alive {
+            match pacman.orientation {
+                Orientation::Left => Cell::new('>'),
+                Orientation::Right => Cell::new('<'),
+                Orientation::Up => Cell::new('V'),
+                Orientation::Down => Cell::new('Λ')
             }
         } else {
-            "*"
-        }.to_owned()
+            Cell::new('*')
+        }
     }
 }

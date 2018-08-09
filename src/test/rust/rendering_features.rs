@@ -20,7 +20,8 @@ steps! {
 
     when "we render the status line"
     |world, _step| {
-        world.render_result = world.game.stats.render(&RenderOptions { screen_width: world.screen_width });
+        world.game.stats.screen_width = world.screen_width;
+        world.render_result = format!("{}", world.game.stats);
     };
 
     when "we render the game"

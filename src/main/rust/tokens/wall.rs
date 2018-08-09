@@ -15,8 +15,15 @@ impl Wall {
 
 }
 
-impl Renderable for Wall {
-    fn render(&self, _opts: &RenderOptions) -> String {
-        format!("{}", self.token)
+impl From<Wall> for Cell {
+    fn from(wall: Wall) -> Cell {
+        From::from(&wall)
     }
 }
+
+impl<'a> From<&'a Wall> for Cell {
+    fn from(wall: &'a Wall) -> Cell {
+        Cell::new(wall.token)
+    }
+}
+

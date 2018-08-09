@@ -13,9 +13,15 @@ impl Gate {
     }
 }
 
-impl Renderable for Gate {
-    fn render(&self, _opts: &RenderOptions) -> String {
-        "=".to_owned()
+impl From<Gate> for Cell {
+    fn from(gate: Gate) -> Cell {
+        From::from(&gate)
+    }
+}
+
+impl<'a> From<&'a Gate> for Cell {
+    fn from(_gate: &'a Gate) -> Cell {
+        Cell::new('=')
     }
 }
 
@@ -32,8 +38,14 @@ impl ForceField {
     }
 }
 
-impl Renderable for ForceField {
-    fn render(&self, _opts: &RenderOptions) -> String {
-        "#".to_owned()
+impl From<ForceField> for Cell {
+    fn from(ff: ForceField) -> Cell {
+        From::from(&ff)
+    }
+}
+
+impl<'a> From<&'a ForceField> for Cell {
+    fn from(_ff: &'a ForceField) -> Cell {
+        Cell::new('#')
     }
 }

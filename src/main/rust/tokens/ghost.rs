@@ -52,12 +52,18 @@ impl Mobile for Ghost {
     }
 }
 
-impl Renderable for Ghost {
-    fn render(&self, _opts: &RenderOptions) -> String {
-        if self.is_scared() {
-            "W".to_owned()
+impl From<Ghost> for Cell {
+    fn from(ghost: Ghost) -> Cell {
+        From::from(&ghost)
+    }
+}
+
+impl<'a> From<&'a Ghost> for Cell {
+    fn from(ghost: &'a Ghost) -> Cell {
+        if ghost.is_scared() {
+            Cell::new('W')
         } else {
-            "M".to_owned()
+            Cell::new('M')
         }
     }
 }

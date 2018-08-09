@@ -10,7 +10,7 @@ pub use self::pacman::*;
 pub use self::pill::*;
 pub use self::wall::*;
 
-pub use super::{MoveOptions, Position, RenderOptions, Renderable, Mobile};
+pub use super::{Mobile, MoveOptions, Position, RenderScreen, Renderable, Cell};
 
 macro_rules! token {
     ($($name:ident($inner:tt) -> $is_fn:ident, $get_immut:ident, $get_mut:ident,)*) => {
@@ -53,10 +53,10 @@ macro_rules! token {
             )*
         }
 
-        impl Renderable for Token {
-            fn render(&self, opts: &RenderOptions) -> String {
-                match self {
-                    $(Token::$name(v) => v.render(opts),)*
+        impl<'a> From<&'a Token> for Cell {
+            fn from(t: &'a Token) -> Cell {
+                match *t {
+                    $(Token::$name(ref val) => val.into(),)*
                 }
             }
         }

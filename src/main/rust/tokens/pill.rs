@@ -15,12 +15,18 @@ impl Pill {
     }
 }
 
-impl Renderable for Pill {
-    fn render(&self, _opts: &RenderOptions) -> String {
-        match self.score_value {
-            10 => ".",
-            50 => "o",
-            _ => unreachable!(),
-        }.to_owned()
+impl From<Pill> for Cell {
+    fn from(pill: Pill) -> Cell {
+        From::from(&pill)
+    }
+}
+
+impl<'a> From<&'a Pill> for Cell {
+    fn from(pill: &'a Pill) -> Cell {
+        match pill.score_value {
+            10 => Cell::new('.'),
+            50 => Cell::new('o'),
+            _ => unreachable!()
+        }
     }
 }
