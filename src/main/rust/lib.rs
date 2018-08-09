@@ -60,7 +60,7 @@ pub struct MoveOptions {
 }
 
 impl MoveOptions {
-    pub fn from(pos: &Position, bounds: &Bounds, board: &Board) -> MoveOptions {
+    pub fn from(pos: &Position, bounds: &Bounds, board: &ImmobileTokens) -> MoveOptions {
         let left = pos.left(bounds);
         let right = pos.right(bounds);
         let up = pos.up(bounds);
@@ -106,4 +106,8 @@ impl MoveOptions {
         }
         vec
     }
+}
+
+pub trait Mobile {
+    fn next_pos(&mut self, options: MoveOptions) -> Option<Position>;
 }

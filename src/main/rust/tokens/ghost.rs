@@ -4,6 +4,7 @@ use super::*;
 pub struct Ghost {
     current_pos: Option<Position>,
     previous_pos: Option<Position>,
+    scared_turns: u64,
 }
 
 impl Ghost {
@@ -12,12 +13,23 @@ impl Ghost {
             'M' => Some(Ghost {
                 current_pos: None,
                 previous_pos: None,
+                scared_turns: 0,
             }),
             _ => None,
         }
     }
 
-    pub fn next_pos(&mut self, valid_neighbours: MoveOptions) -> Option<Position> {
+    pub fn scare(&mut self) {
+        self.scared_turns += 10;
+    }
+
+    pub fn is_scared(&self) -> bool {
+        self.scared_turns > 0
+    }
+}
+
+impl Mobile for Ghost {
+    fn next_pos(&mut self, valid_neighbours: MoveOptions) -> Option<Position> {
         let mut valid_posns = valid_neighbours.as_vec();
         if let Some(prev_posn) = self.previous_pos {
             for i in 0..valid_posns.len() {
@@ -42,6 +54,10 @@ impl Ghost {
 
 impl Renderable for Ghost {
     fn render(&self, _opts: &RenderOptions) -> String {
-        "M".to_owned()
+        if self.is_scared() {
+            "W".to_owned()
+        } else {
+            "M".to_owned()
+        }
     }
 }

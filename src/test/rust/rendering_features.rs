@@ -44,8 +44,8 @@ steps! {
 
     then "the game screen should be"
     |world, step| {
-        let expecetd_screen = step.docstring().expect("No docstring set");
-
-        assert_eq!(*expecetd_screen, world.render_result, "\nActual state:\n{}", world.render_result);
+        let expeceted_screen = step.docstring().expect("No docstring set");
+        assert_eq!(expeceted_screen, &world.render_result,
+            "\nExpected game state: \n{}\n\nActual game state: \n{}", expeceted_screen, world.render_result);
     };
 }

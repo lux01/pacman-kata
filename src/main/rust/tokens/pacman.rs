@@ -55,13 +55,15 @@ impl Pacman {
             _ => None,
         }
     }
+}
 
-    pub fn next_pos(&mut self, valid_neighbours: MoveOptions) -> Option<Position> {
+impl Mobile for Pacman {
+    fn next_pos(&mut self, options: MoveOptions) -> Option<Position> {
         match self.orientation {
-            Orientation::Left => valid_neighbours.left,
-            Orientation::Right => valid_neighbours.right,
-            Orientation::Up => valid_neighbours.up,
-            Orientation::Down => valid_neighbours.down,
+            Orientation::Left => options.left,
+            Orientation::Right => options.right,
+            Orientation::Up => options.up,
+            Orientation::Down => options.down,
         }
     }
 }

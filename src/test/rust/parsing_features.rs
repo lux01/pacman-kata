@@ -46,13 +46,13 @@ steps! {
 
     then regex r"pacman should be at (\d+) , (\d+)", (usize, usize)
     |world, expected_x, expected_y, _step| {
-        assert!(world.game.board.is_pacman_at(&Position { x: expected_x, y: expected_y }));
+        assert!(world.game.board.mobile_tokens().is_pacman_at(&Position { x: expected_x, y: expected_y }));
     };
 
     then regex r###"pacman should be facing "(LEFT|RIGHT|UP|DOWN)""###,
     (tokens::Orientation)
     |world, expected_orientation, _step| {
-        let orientation = world.game.board.get_pacman()
+        let orientation = world.game.board.mobile_tokens().get_pacman()
             .map(|pacman| pacman.orientation)
             .expect("Pacman not found");
 
@@ -61,7 +61,7 @@ steps! {
 
     then "pacman should be dead" |world, _step| {
 
-            let is_pacman_alive = world.game.board.get_pacman()
+            let is_pacman_alive = world.game.board.mobile_tokens().get_pacman()
                 .map(|pacman| pacman.alive)
                 .expect("Pacman not found");
 
@@ -70,12 +70,12 @@ steps! {
 
     then regex r"ghost should be at (\d+) , (\d+)", (usize, usize)
     |world, expected_x, expected_y, _step| {
-        assert!(world.game.board.is_ghost_at(&Position { x: expected_x, y: expected_y }));
+        assert!(world.game.board.mobile_tokens().is_ghost_at(&Position { x: expected_x, y: expected_y }));
     };
 
     then regex r"there should be a (\d+) point pill at (\d+) , (\d+)", (u64, usize, usize)
     |world, expected_score_value, expected_x, expected_y, _step| {
-            let pill = world.game.board.get_pill_at(&Position { x: expected_x, y: expected_y })
+            let pill = world.game.board.immobile_tokens().get_pill_at(&Position { x: expected_x, y: expected_y })
                 .expect("Pill not found at location");
 
             assert_eq!(expected_score_value, pill.score_value);
@@ -83,16 +83,16 @@ steps! {
 
     then regex r"there should be a wall at (\d+) , (\d+)", (usize, usize)
     |world, expected_x, expected_y, _score| {
-            assert!(world.game.board.is_wall_at(&Position { x: expected_x, y: expected_y }), "Wall not found");
+            assert!(world.game.board.immobile_tokens().is_wall_at(&Position { x: expected_x, y: expected_y }), "Wall not found");
     };
 
     then regex r"there should be a gate at (\d+) , (\d+)", (usize, usize)
     |world, expected_x, expected_y, _score| {
-            assert!(world.game.board.is_gate_at(&Position { x: expected_x, y: expected_y }), "Gate not found");
+            assert!(world.game.board.immobile_tokens().is_gate_at(&Position { x: expected_x, y: expected_y }), "Gate not found");
     };
 
     then regex r"there should be a force field at (\d+) , (\d+)", (usize, usize)
     |world, expected_x, expected_y, _score| {
-            assert!(world.game.board.is_force_field_at(&Position { x: expected_x, y: expected_y }), "Force field not found");
+            assert!(world.game.board.immobile_tokens().is_force_field_at(&Position { x: expected_x, y: expected_y }), "Force field not found");
     };
 }

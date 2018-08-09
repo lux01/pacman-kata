@@ -13,9 +13,6 @@ impl Wall {
         }
     }
 
-    pub fn next_pos(&mut self, _valid_neighbours: MoveOptions) -> Option<Position> {
-        None
-    }
 }
 
 impl Renderable for Wall {

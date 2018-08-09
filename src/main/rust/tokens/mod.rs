@@ -10,7 +10,7 @@ pub use self::pacman::*;
 pub use self::pill::*;
 pub use self::wall::*;
 
-pub use super::{MoveOptions, Position, RenderOptions, Renderable};
+pub use super::{MoveOptions, Position, RenderOptions, Renderable, Mobile};
 
 macro_rules! token {
     ($($name:ident($inner:tt) -> $is_fn:ident, $get_immut:ident, $get_mut:ident,)*) => {
@@ -27,12 +27,6 @@ macro_rules! token {
                 $(result = result.or_else(|| $inner::try_parse(c).map(|v| Token::$name(v)));)*
 
                 return result;
-            }
-
-            pub fn next_pos(&mut self, move_options: MoveOptions) -> Option<Position> {
-                match self {
-                    $(Token::$name(token) => token.next_pos(move_options),)*
-                }
             }
 
             $(

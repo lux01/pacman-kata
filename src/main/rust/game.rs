@@ -16,7 +16,8 @@ impl Game {
     }
 
     pub fn tick(&mut self) {
-        self.board.tick();
+        let score_change = self.board.tick();
+        self.stats.score += score_change;
     }
 }
 
